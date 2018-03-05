@@ -24,23 +24,31 @@ namespace WEB01.Controllers
         }
 
         public IActionResult Index()
-        {           
+        {
+            IRepository<Author, int> AuthorRepository = new Repository<Author, int>(dbContext);
+
+            AuthorRepository.Add(new Author { Name = "Daniel" });
+            Update();
+
             IRepository<Book, int> BookRepository = new Repository<Book, int>(dbContext);
 
-            BookRepository.Add(new Book { BookId = 1, Title = "Clean Code" });
-            unitOfWork.Commit();
+            BookRepository.Add(new Book { Title = "Clean Code" });
+            Update();
+          
+            unitOfWork.Dispose();
+            return View();
+        }
 
+        private void Update()
+        {
             try
             {
-                unitOfWork.Dispose();
+                unitOfWork.Commit();
             }
-            catch (Exception e)
+            catch (DbUpdateException due)
             {
                 unitOfWork.RejectChanges();
             }
-            
-
-            return View();
         }
 
         public IActionResult Error()
